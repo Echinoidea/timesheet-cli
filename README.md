@@ -1,6 +1,9 @@
 Clock in and out with the CLI
 
-```Options:
+```
+Usage: timesheet [options]
+
+Options:
   -V, --version                           output the version number
   -j --job <string>                       For which job is this timesheet?
   -c --cat <'plan'|'read'|'code'|'docs'>  PLAN, READ, CODE, DOCS
