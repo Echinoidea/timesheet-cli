@@ -1,37 +1,56 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
-import { ClockIn, DoesFileExist, InitializeJson, LoadTimesheetData, SaveJson } from './api.mjs';
+import { CalculateHoursWorked, ClockIn, DoesFileExist, InitializeJson, LoadTimesheetData, SaveJson } from './api.mjs';
 
+// Paths
 let path = '.';
-let jobName = '';
-let filePath = `${path}/${jobName}.json`;
+let projName = '';
+let filePath = `${path}/${projName}.json`;
+
+// Options
 let cat = '';
 let desc = '';
+let query = null;
+let startDate = '';
+let endDate = '';
 
 program
-  .version("0.1.0")
-  .description("Clock in and out with the CLI")
-  .option("-j --job <string>", "For which job is this timesheet?")
-  .option("-c --cat <'plan'|'read'|'code'|'docs'>", "PLAN, READ, CODE, DOCS")
+  .version("0.2.0")
+  .description("Clock in and out with the CLI.")
+  .option("-p --job <string>", "For which project is this timesheet?")
+  .option("-c --cat <string>", "e.g. PLAN, READ, CODE, DOCS, ...")
   .option("-d --desc <string>", "A brief message about what work was done.")
+  .option("-q --query <'y' | null>", "Get hours worked between start and end dates. Including both endpoints.")
+  .option("-s --start <yyyy-mm-dd>", "Start date for query.")
+  .option("-e --end <yyyy-mm-dd | 'now'>", "End date for query.")
   .action((options) => {
-    jobName = options.job;
-    filePath = `${path}/${jobName}.json`;
+    projName = options.job;
+    filePath = `${path}/${projName}.json`;
     cat = options.cat;
     desc = options.desc;
+    query = options.query;
+    startDate = options.start;
+    endDate = options.end;
   });
 
 program.parse(process.argv);
 
-if (!(await DoesFileExist(filePath))) {
-  console.log(`Could not find ${jobName} timesheet. Creating new JSON file at ${path}`);
-  InitializeJson(filePath,  jobName);
+if (!query) {
+
+  if (!(await DoesFileExist(filePath))) {
+    console.log(`Creating ${filePath}`)
+    InitializeJson(filePath);
+  }
+  else {
+    LoadTimesheetData(filePath);
+  }
   ClockIn(filePath, cat, desc);
+  SaveJson(filePath);
 }
 else {
   LoadTimesheetData(filePath);
-  console.log("Found file. Clocking in/out");
-  ClockIn(filePath, cat, desc);
+  console.log(`Hours: ${CalculateHoursWorked(startDate, endDate)}`)
 }
-SaveJson(filePath);
+
+
