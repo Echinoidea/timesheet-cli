@@ -94,13 +94,13 @@ function CalculateHoursWorked(startDate, endDate) {
   // Convert startDate and endDate to the start and end of the day timestamps
   const start = new Date(startDate).setHours(0, 0, 0, 0);
   const end = endDate === 'now' ? Date.now() : new Date(endDate).setHours(23, 59, 59, 999);
-  
-  const filtered = timesheetArray.filter((entry) => {return entry.in >= start || entry.out <= end});
+
+  const filtered = timesheetArray.filter((entry) => { return entry.in >= start || entry.out <= end });
 
   const totalMilliseconds = filtered.reduce((total, entry) => {
     const duration = entry.out - entry.in;
     return total + duration;
-}, 0);
+  }, 0);
 
   // Convert milliseconds to hours
   const totalHours = totalMilliseconds / (1000 * 60 * 60);
@@ -110,4 +110,30 @@ function CalculateHoursWorked(startDate, endDate) {
 
 //#endregion
 
-export { DoesFileExist, LoadTimesheetData, InitializeJson, ClockIn, SaveJson, CalculateHoursWorked };
+
+
+function PrintWorkTimes(startDate, endDate) {
+  const start = new Date(startDate).setHours(0, 0, 0, 0);
+  const end = endDate === 'now' ? Date.now() : new Date(endDate).setHours(23, 59, 59, 999);
+
+
+  const filtered = timesheetArray.filter((entry) => { return entry.in >= start || entry.out <= end });
+
+  filtered.forEach((entry) => {
+    let dateIn = new Date(entry.in);
+    let dateOut = new Date(entry.out);
+
+    let timeIn = dateIn.toTimeString().slice(0, 8);
+    let timeOut = dateOut.toTimeString().slice(0, 8);
+
+    let duration = (+dateOut - +dateIn) / (1000 * 60 * 60);
+
+
+    console.log(`Date: ${dateIn.toDateString().slice(0, 15)}\nIn:   ${timeIn}\nOut:  ${timeOut}\nTime: ${duration.toFixed(2)}\n---------------------`);
+  })
+}
+
+
+
+
+export { DoesFileExist, LoadTimesheetData, InitializeJson, ClockIn, SaveJson, CalculateHoursWorked, PrintWorkTimes };

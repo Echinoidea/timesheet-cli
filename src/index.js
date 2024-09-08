@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
-import { CalculateHoursWorked, ClockIn, DoesFileExist, InitializeJson, LoadTimesheetData, SaveJson } from './api.mjs';
+import { CalculateHoursWorked, ClockIn, DoesFileExist, InitializeJson, LoadTimesheetData, PrintWorkTimes, SaveJson } from './api.mjs';
 
 // Paths
 let path = '.';
@@ -36,8 +36,9 @@ program
 
 program.parse(process.argv);
 
-if (!query) {
 
+
+if (!query) {
   if (!(await DoesFileExist(filePath))) {
     console.log(`Creating ${filePath}`)
     InitializeJson(filePath);
@@ -50,7 +51,8 @@ if (!query) {
 }
 else {
   LoadTimesheetData(filePath);
-  console.log(`Hours: ${CalculateHoursWorked(startDate, endDate)}`)
+  PrintWorkTimes(startDate, endDate);
+  console.log(`\n Total Hours: ${CalculateHoursWorked(startDate, endDate)}`)
 }
 
 
